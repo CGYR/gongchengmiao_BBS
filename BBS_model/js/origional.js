@@ -78,31 +78,38 @@ function loadData()
 
 function talk() {
 
-    var Words = document.getElementById("words");
-    var TalkWords = document.getElementById("talkwords");
+    var Words = document.getElementById("chatshow");
+    var TalkWords = document.getElementById("chatinput");
     var TalkSub = document.getElementById("talksub");
-
-    TalkSub.onclick = function(){
+    var date = new Date();
+    var hour = date.getHours();
+    var minute = date.getMinutes();
+    var currentTime =  hour + ":" + minute;
         //定义空字符串
         var str = "";
         if(TalkWords.value == ""){
-            // 消息为空时弹窗
-            alert("消息不能为空");
             return;
         }
-        str = '<div class="metalk">' +
-              '<span>' +
-              '<a href="x_personal_page_show_demo.html" target="_blank" style="color: #0d8ddb">A</a>' + ":" + TalkWords.value +
-              '</span>' +
-              '</div>';
+        str =   '<div class="right">' +
+                '<div class="author-name">' +
+                '<a href="x_personal_page_show_demo.html" target="_blank" style="color: #0d8ddb"><strong>我</strong></a>' +
+                '<small class="chat-date">' +
+                 currentTime +
+                '</small>' +
+                '</div>' +
+                '<div class="chat-message">' +
+                 TalkWords.value +
+                '</div>' +
+                '</div>'
+                +'<br>';
         Words.innerHTML = Words.innerHTML + str;
         Words.scrollTop = Words.scrollHeight;
-    };
+    TalkWords.value = "";
 }
 
 
 function Recieve() {
-    var Words = document.getElementById("words");
+    var Words = document.getElementById("chatshow");
     var str = "";
     var str2 = str;
 
@@ -110,11 +117,18 @@ function Recieve() {
     {
         $.getJSON("js/userinfo.json", function (data) {
             $.each(data, function (infoIndex, info) {
-                str = '<div class="othertalk">' +
-                    '<span>' +
-                    '<a href="x_personal_page_show_demo.html" target="_blank" style="color: #0d8ddb">info["name"]</a>' + ":" + info["message"] +
-                    '</span>' +
-                    '</div>';
+                str =   '<div class="left">' +
+                        '<div class="author-name">' +
+                        '<a href="x_personal_page_show_demo.html" target="_blank" style="color: #0d8ddb"><strong>info["name"]</strong></a>' +
+                        '<small class="chat-date">' +
+                        'info["time"]' +
+                        '</small>' +
+                        '</div>' +
+                        '<div class="chat-message active">' +
+                        'info["message"]' +
+                        '</div>' +
+                        '</div>'
+                        +'<br>';
 
             });
         });
