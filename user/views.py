@@ -61,6 +61,9 @@ def login(request):
                     #                     expires=timezone.now() + datetime.timedelta(days=10))
 
                     auth.login(request, user)
+                    user.login_times += 1
+                    user.save()
+
                     return response
 
                 else:
@@ -99,7 +102,7 @@ def register(request):
             password = form.cleaned_data['password']
             password_confirm = form.cleaned_data['password_confirm']
             email = form.cleaned_data['email']
-            confirm_message = form.cleaned_data['confirm_message']
+            confirm_message = True
 
             if common_member.objects.filter(username=username):
                 return render(request, "register_demo_v2.html", {
@@ -138,6 +141,7 @@ def register(request):
             new_account.username = username
             new_account.password = make_password(password)
             new_account.email = email
+            new_account.portrait = "portraits/default_img/boy_glasses.jpg"  # 新加 待测试
             new_account.save()
 
             # token = account_activation_token.make_token(new_account)

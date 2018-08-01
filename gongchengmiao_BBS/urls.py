@@ -15,13 +15,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+from django.conf.urls import url
 from index import views as index_views
 from django.conf.urls.static import static
 from gongchengmiao_BBS import settings
 from user import views as user_views
 from homepage import views as homepage_views
 from article import views as article_views
+from article import search_views
 from section import views as section_views
+from haystack.views import SearchView
 from django.views.generic import TemplateView
 # from django.conf.urls import url
 # from django.views.static import serve as static_serve
@@ -38,6 +41,12 @@ urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
     path('article/article-detail/<int:pid>/<slug:slug>/', article_views.article_detail, name='article_detail'),
     path('article/article-post/', article_views.article_post, name='article_post'),
+    path('article/', article_views.article_post, name="article_post"),
+    path('article/like-article/', article_views.like_article, name="like_article"),
+    path('search/', search_views.MySearchView(), name='haystack_search'),
+    path('like/', article_views.like, name='like'),
+
+
     path('index_core/', index_views.index, name='index_core'),
     path('pswdgetback', user_views.pswdgetback, name='pswd_get_back'),
     path('waitemailback/<username>/', user_views.pswdgetback_jump, name='wait_email_back'),
@@ -55,7 +64,7 @@ urlpatterns = [
     path('homepage/ajax_get_temp', homepage_views.edit_info_ajax_get_temp, name='edit_info_ajax_get_temp'),
     path('homepage/ajax_delete_temp', homepage_views.delete_temp, name='edit_info_ajax_delete_temp'),
 
-    path('article/', article_views.article_post, name="article_post"),
+
 
     path('section/sec=<section_slug>', section_views.section_all, name='section_all'),
     path('section/open_posts_list', section_views.section_open_posts_list, name='open_posts_list'),

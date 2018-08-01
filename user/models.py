@@ -1,10 +1,12 @@
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import AbstractUser, User
 from django.conf import settings
 from .validators import BbsUsernameValidator
 from slugify import slugify
 from datetime import date
 from django.urls import reverse
+from section.models import SectionForum
 from django.utils.timezone import now
 
 
@@ -15,6 +17,7 @@ class common_member(AbstractUser):
     # email = models.EmailField()
     username = models.CharField(max_length=30, unique=True)
     stu_num = models.CharField(max_length=10, null=True)
+    login_times = models.IntegerField(default=0)
     dept_choices = (
         ('000', '少年班学院'),
         ('001', '数学科学院'),
@@ -137,7 +140,7 @@ class member_crime(models.Model):
     action = models.ForeignKey(common_member_action_log, on_delete=models.CASCADE,
                                db_constraint=True)  # 惩罚行为
     reason = models.TextField()  # 惩罚理由
-    dateline = models.DateTimeField(auto_now=True)  # 惩罚操作时间
+    dateline = models.DateTimeField(auto_now_add=True)  # 惩罚操作时间
 
     def __str__(self):
         return '{} {}'.format(self.uid, self.action)
@@ -169,12 +172,22 @@ class common_member_field_forum(models.Model):
 
 # 用户收藏表
 class common_member_star(models.Model):
-    uid = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    uid = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)
     is_school_info = models.BooleanField(default=False)
     pid = models.ForeignKey('article.ArticlePost', null=True, blank=True, on_delete=models.CASCADE)
-    star_time = models.DateTimeField(auto_now=True)
+    star_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-            return "{}, {}".format(self.uid, self.pid)
+        return "{}, {}".format(self.uid, self.pid)
+
+
+# 用户关注版块表
+class commom_member_watch(models.Model):
+    uid = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)
+    section = models.ForeignKey(SectionForum, on_delete=models.CASCADE)
+    watch_time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return "{}, {}".format(self.uid, self.section)
 
 

@@ -49,11 +49,16 @@ class ArticlePost(models.Model):
                                 upload_settings={"imageMaxSize": 1204000}, settings={}, verbose_name='内容')
 
     isElite = models.BooleanField(default=False)
-    pub_date = models.DateTimeField(auto_now_add=True, editable=True)
+    pub_date = models.DateTimeField(auto_now_add=True, editable=True, db_index=True)
 
     section_belong_fk = models.ForeignKey('section.SectionForum', on_delete=models.CASCADE, null=True)
     slug = models.SlugField(max_length=500, default=slugify(str(title)), allow_unicode=True)
     comment_counter = models.IntegerField(default=0)
+
+    users_like = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="articles_like", blank=True)
+
+    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='likes')
+
     def __str__(self):
         return self.title
 
@@ -63,6 +68,15 @@ class ArticlePost(models.Model):
 
     def get_url(self):  # ⑥
         return reverse("article_detail", args=[self.pid, self.slug])
+
+    @property
+    def total_likes(self):
+        """
+        Likes for the company
+        :return: Integer: Likes for the company
+        """
+        return self.likes.count()
+        #return int(3)
 
 
 # 帖子浏览量信息
