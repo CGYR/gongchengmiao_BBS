@@ -151,6 +151,62 @@
         </nav>
         <!--左侧导航结束-->
         <!--右侧部分开始-->
+        <div class="small-chat-box fadeInRight animated" onload="Recieve()">
+
+            <div class="heading" draggable="true">
+                <p>与 Beau-zihan 聊天中</p>
+            </div>
+
+            <div class="content" id = "chatshow"></div>
+
+
+            <div class="form-chat">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control" id="chatinput">
+                    <span class="input-group-btn">
+                <button class="btn btn-info" type="button" onclick="talk()" id="chatsub">发送
+                </button>
+            </span>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="friendlist" class="friendlist animated fadeInLeft" >
+            <div class="heading">
+                <h4 >好友列表</h4>
+            </div>
+            <div class="content" onclick="Update_i(event);Clear_tab(event);">
+                <ul class="sortable-list connectList agile-list" style="height: 275px;overflow: auto;">
+                    {% for friend in friend_list %}
+                        <li  id="friend" class="info-element" onclick="Getid(event);Justice();Alljustice();Justice()">
+                            <img class="img-circle" src="{% get_media_prefix %}{{ friend.portrait }}" style="width: 30px">
+                            <h5 class="pull-right" style="text-align: center;">{{ friend.username }}</h5>
+                        </li>
+                    {% endfor %}
+
+                </ul>
+            </div>
+        </div>
+        <script>
+                    function changeid() {
+                    var i;
+                    for(i=1;i<={{ friend_list | length }};i++){
+                        document.getElementById("friend").id = "friend" + i;
+                    }
+                }
+
+                    changeid();
+        </script>
+
+        <div id="small-chat" onclick="firstactive2()">
+            <span class="badge badge-danger pull-right">...</span>
+            <a class="open-small-chat" onclick="firstactive2()">
+                <i class="fa fa-comments" onclick="firstactive2()"></i>
+            </a>
+        </div>
+
+
         <div id="page-wrapper" class="gray-bg dashbard-1">
 
             <div class="row border-bottom">
@@ -179,7 +235,8 @@
 {#                                            <strong>用户二</strong> 读书笔记到底要交几篇？#}
 {#                                            <br>#}
 {#                                            <small class="text-muted">3天前 2016.11.8</small>#}
-{#                                        </div>#}
+{#                                 var Words = document.getElementById("chatshow");#}
+{#           </div>#}
 {#                                    </div>#}
 {#                                </li>#}
 {#                                <li class="divider"></li>#}
@@ -262,7 +319,124 @@
 {#    <!-- 第三方插件 -->#}
 {#    <script src="js/plugins/pace/pace.min.js"></script>#}
 {% include "js_use.html" %}
+    <script language= "JavaScript">
+        function keyEnter(){
+            if (event.keyCode == 13) {
+                talk();
+            }
+        }
+        document.onkeydown = keyEnter;
+    </script>
 
+    <script>
+        var roomName = {{ room_name_json }};
+
+        var room_name_list = {{ room_name_list }};
+
+        var i;
+
+        var chatSocket = {};
+
+        for( i in room_name_list) {
+
+                chatSocket[i] = new WebSocket(
+                'ws://' + window.location.host +
+                '/ws/chat/' + room_name_list[i] + '/');
+
+            chatSocket[i].onmessage = function(e) {
+                var data = JSON.parse(e.data);
+                var message = data['message'];
+                var user = data['user'];
+                var time = data['time'];
+                var is_user = data['is_user'];
+                console.log(message + user + time + is_user);
+                var Words = document.getElementById("chatshow");
+                var str = "";
+                console.log(message);
+                {#document.querySelector('#zhmsgtest').innerHTML = message;#}
+
+                if(is_user == false){
+                    str =   '<div class="left">' +
+                        '<div class="author-name">' +
+                        '<strong>'+user+'</strong>' +
+                        '<small class="chat-date">' +
+                        time +
+                        '</small>' +
+                        '</div>' +
+                        '<div class="chat-message active">' +
+                        message +
+                        '</div>' +
+                        '</div>'
+                        +'<br>';
+                }
+                else{
+                    str =   '<div class="right">' +
+                        '<div class="author-name">' +
+                        '<strong>'+'我'+'</strong>' +
+                        '<small class="chat-date">' +
+                        time +
+                        '</small>' +
+                        '</div>' +
+                        '<div class="chat-message active">' +
+                        message +
+                        '</div>' +
+                        '</div>'
+                        +'<br>';
+                }
+
+
+                if (str != "") {
+                    Words.innerHTML = Words.innerHTML + str;
+                    Words.scrollTop = Words.scrollHeight;
+                }
+
+            };
+
+            chatSocket.onclose = function(e) {
+                {#console.error('Chat socket closed unexpectedly');#}
+            };
+
+            function Update_i(ev) {
+                if(ev.target.tagName.toUpperCase() !== "LI") {
+                    i = ev.target.parentNode.id;
+                }
+                else {
+                    i = ev.target.id;
+                }
+                console.log(i)
+            }
+
+            function Clear_tab(ev) {
+                document.getElementById("chatshow").innerHTML = "";
+                chatSocket[i[6]-1].send("/plaese/send/me/the/log")
+
+            }
+
+            document.querySelector('#chatinput').focus();
+            document.querySelector('#chatinput').onkeyup = function(e) {
+                if (e.keyCode === 13) {  // enter, return
+                    document.querySelector('#chatsub').click();
+                }
+            };
+
+
+            document.querySelector('#chatsub').onclick = function(e) {
+                var messageInputDom = document.querySelector('#chatinput');
+                var message = messageInputDom.value;
+                var j = i[6];
+                console.log(chatSocket[j-1]);
+                chatSocket[j-1].send(JSON.stringify({
+                    'message': message
+                }));
+
+                messageInputDom.value = '';
+            };
+        }
+
+
+
+
+    </script>
 </body>
 
 </html>

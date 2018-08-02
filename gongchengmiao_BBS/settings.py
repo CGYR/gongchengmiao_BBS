@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 import sys
-#from secrets_zh import mail_passwd
+from secrets_zh import mail_passwd
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'section',
     'user',
     'zone',
+    'channels',
+    'chat',
     'DjangoUeditor',
     'haystack',
 ]
@@ -79,6 +81,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'gongchengmiao_BBS.wsgi.application'
+
+# ASGI_APPLICATION = "gongchengmiao_BBS.routing.application"
 
 
 # Database
@@ -117,6 +121,38 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "asgi_redis.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+#         },
+#         "ROUTING": "chat.routing.channel_routing",
+#     },
+# }
+
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [("localhost", 6379)],
+#         },
+#         "ROUTING": "gongchengmiao_BBS.routing.channel_routing"
+#     },
+# }
+
+# Channels
+ASGI_APPLICATION = 'gongchengmiao_BBS.routing.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
@@ -147,7 +183,7 @@ EMAIL_USE_SSL = True
 EMAIL_HOST = 'mail.ustc.edu.cn'
 EMAIL_PORT = 465
 EMAIL_HOST_USER = 'paulzh@mail.ustc.edu.cn'
-#EMAIL_HOST_PASSWORD = mail_passwd
+EMAIL_HOST_PASSWORD = mail_passwd
 # EMAIL_HOST_PASSWORD = ''
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 

@@ -71,6 +71,7 @@ class common_member(AbstractUser):
         return reverse("show_info", args={self.slug})
 
 
+
 class follower_pair(models.Model):
     followed = models.ForeignKey(common_member, on_delete=models.CASCADE, related_name='%(class)s_followed')
     by = models.ForeignKey(common_member, on_delete=models.CASCADE, related_name='%(class)s_by')

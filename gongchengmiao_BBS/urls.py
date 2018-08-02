@@ -14,13 +14,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path, include
 from django.conf.urls import url
 from index import views as index_views
 from django.conf.urls.static import static
 from gongchengmiao_BBS import settings
 from user import views as user_views
 from homepage import views as homepage_views
+from chat import views as chat_views
 from article import views as article_views
 from article import search_views
 from section import views as section_views
@@ -31,28 +32,35 @@ from django.views.generic import TemplateView
 # from gongchengmiao_BBS.settings import STATIC_ROOT
 
 urlpatterns = [
+    path('admin/', admin.site.urls, name='admin'),
+
     path('index/', index_views.index_shell, name='index'),
+    path('index_core/', index_views.index, name='index_core'),
     path('', index_views.redirect_to_login, name='main'),
+
     path('register/', user_views.register, name='register'),
     path('login/', user_views.login, name='login'),
     path('logout/', user_views.logout, name='logout'),
     path('verify/<uidb64>/<token>/', user_views.email_active, name='verify_user'),
     path('waitemail/<username>/', user_views.jump_to_wait, name='wait_email'),
-    path('admin/', admin.site.urls, name='admin'),
+    path('waitemailback/<username>/', user_views.pswdgetback_jump, name='wait_email_back'),
+    path('pswdgetback', user_views.pswdgetback, name='pswd_get_back'),
+    path('pswdgetback/<uidb64>/<token>/', user_views.pswd_get_back_view, name='pswd_get_beck_2'),
+    path('pswdgetbackjmp/<username>/', user_views.pswdgetback_jump, name='pswdgetback_jump'),
+
+    path('article/', include('article.urls', namespace='article')),
     path('article/article-detail/<int:pid>/<slug:slug>/', article_views.article_detail, name='article_detail'),
     path('article/article-post/', article_views.article_post, name='article_post'),
     path('article/', article_views.article_post, name="article_post"),
     path('article/like-article/', article_views.like_article, name="like_article"),
     path('search/', search_views.MySearchView(), name='haystack_search'),
+
     path('like/', article_views.like, name='like'),
 
-
-    path('index_core/', index_views.index, name='index_core'),
-    path('pswdgetback', user_views.pswdgetback, name='pswd_get_back'),
-    path('waitemailback/<username>/', user_views.pswdgetback_jump, name='wait_email_back'),
+    path('chat/', chat_views.index, name='chat_index'),
+    path('chat/<room_name>/', chat_views.room, name='room'),
 
     path('homepage/self/', homepage_views.view_self_info, name='view_self_info'),
-    # path('self/', homepageViews.view_self_info, name='view_self_info'),
     path('homepage/edit/', homepage_views.edit_info, name='edit_info'),
     path('homepage/uid=<slug>/', homepage_views.show_info, name='show_info'),
     path('homepage/ajax_follow', homepage_views.show_info_ajax_follow, name='show_info_ajax_follow'),
@@ -69,9 +77,6 @@ urlpatterns = [
     path('section/sec=<section_slug>', section_views.section_all, name='section_all'),
     path('section/open_posts_list', section_views.section_open_posts_list, name='open_posts_list'),
     path('section/follow_sec', section_views.section_follow, name='section_follow'),
-
-    path('pswdgetback/<uidb64>/<token>/', user_views.pswd_get_back_view, name='pswd_get_beck_2'),
-    path('pswdgetbackjmp/<username>/', user_views.pswdgetback_jump, name='pswdgetback_jump'),
 
     path('ueditor/', include('DjangoUeditor.urls'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
